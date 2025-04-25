@@ -76,7 +76,7 @@ class ProductResource extends Resource
                         TextInput::make('price')
                             ->required()
                             ->numeric()
-                            ->prefix('XFA'),
+                            ->prefix('IDR'),
                         TextInput::make('quantity')
                             ->required()
                             ->numeric(),
@@ -95,7 +95,7 @@ class ProductResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('price')
-                    ->money('XFA')
+                    ->money('IDR')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('quantity')
                     ->numeric()

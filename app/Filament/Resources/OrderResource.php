@@ -93,10 +93,20 @@ class OrderResource extends Resource
                                     ->default(1)
                                     ->integer()
                                     ->required()
-                                    ->minValue(1),
+                                    ->minValue(1)
+                                    ->helperText(function (Get $get) {
+                                      $productId = $get('product_id');
+                                      if ($productId) {
+                                          $product = \App\Models\Product::find($productId);
+                                          if ($product) {
+                                              return 'Available: ' . $product->quantity;
+                                          }
+                                      }
+                                      return null;
+                                    }),
                                 TextInput::make('price')
                                     ->numeric()
-                                    ->prefix('XFA')
+                                    ->prefix('IDR')
                                     ->readOnly()
                                     ->required(),
                             ])
@@ -115,11 +125,11 @@ class OrderResource extends Resource
                             ->reorderable(false),
                     ]),
                 Section::make('Total')
-                    ->description('Total to pay')
+                    ->description('Total spending')
                     ->collapsible()
                     ->schema([
                         TextInput::make('total')
-                            ->prefix('XFA')
+                            ->prefix('IDR')
                             ->required()
                             ->numeric()
                             ->readOnly()
@@ -154,7 +164,7 @@ class OrderResource extends Resource
                     ->limit(20)
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('total')
-                    ->money('XFA')
+                    ->money('IDR')
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
@@ -169,7 +179,7 @@ class OrderResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('total')
-                    ->money('XFA')
+                    ->money('IDR')
                     ->summarize(Sum::make()),
                 ToggleColumn::make('delivered'),
             ])

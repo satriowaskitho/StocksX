@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Create users
-        // User::factory(2)->create();
+        User::factory(2)->create();
 
         // Create product categories with real values
         $categories = [

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -18,7 +19,8 @@ class OrderFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => $this->faker->numberBetween(1, 3),
+            // 'user_id' => $this->faker->numberBetween(1, 3),
+            'user_id' => \App\Models\User::inRandomOrder()->first()->id ?? \App\Models\User::factory()->create()->id,
             'client_name' => $this->faker->name(),
             'client_phone' => $this->faker->phoneNumber(),
             'client_address' => $this->faker->address(),
