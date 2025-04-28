@@ -15,10 +15,11 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->string("client_name");
-            $table->string("client_phone");
+            $table->string("client_phone")->default('081122334455');
             $table->string("client_address");
             $table->double('total', 100, 2);
-            $table->boolean('delivered')->default(false);
+            $table->boolean('delivered')->default(true);
+            $table->boolean('canceled')->default(false);
             $table->timestamps();
             $table->softDeletes();
 

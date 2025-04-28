@@ -26,6 +26,7 @@ class OrderFactory extends Factory
             'client_address' => $this->faker->address(),
             'total' => $this->faker->randomFloat(2, 1, 1000),
             'delivered' => $this->faker->boolean(),
+            'canceled' => $this->faker->boolean(),
             'created_at' => Carbon::now()->startOfYear()->addDays(rand(0, 364)), // Random date within the current year
             'updated_at' => Carbon::now()->startOfYear()->addDays(rand(0, 364)), // Optional: Match updated_at to created_at
         ];

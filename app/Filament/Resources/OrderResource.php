@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use Filament\Forms;
+use App\Models\User;
 use App\Models\Order;
 use App\Models\Product;
 use Filament\Forms\Get;
@@ -10,13 +11,17 @@ use Filament\Forms\Set;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
+use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+use App\Filament\Resources\OrderResource;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Columns\ToggleColumn;
 use Illuminate\Database\Eloquent\Builder;
@@ -29,6 +34,10 @@ use Filament\Tables\Actions\RestoreBulkAction;
 use App\Filament\Resources\OrderResource\Pages;
 use Filament\Tables\Actions\ForceDeleteBulkAction;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\OrderResource\Pages\EditOrder;
+use App\Filament\Resources\OrderResource\Pages\ViewOrder;
+use App\Filament\Resources\OrderResource\Pages\ListOrders;
+use App\Filament\Resources\OrderResource\Pages\CreateOrder;
 use AymanAlhattami\FilamentDateScopesFilter\DateScopeFilter;
 
 class OrderResource extends Resource
@@ -49,17 +58,31 @@ class OrderResource extends Resource
                     ->description('Client details')
                     ->collapsible()
                     ->schema([
-                        TextInput::make('client_name')
+                        Select::make('client_name')
+                        ->options(User::pluck('name', 'name')) // key = name, value = name
+                        // ->relationship(name: 'user', titleAttribute: 'name')
+                        ->required()
+                        ->native(false)
+                        ->searchable()
+                        ->preload()
+                        ->reactive()
+                        ->afterStateUpdated(function ($state, callable $set) {
+                            // $user = User::find($state);
+                            $user = User::where('name', $state)->first();
+                            if ($user) {
+                                $set('client_address', $user->email);
+                            }
+                        }),
+                        Hidden::make('client_phone')                            
                             ->required()
-                            ->maxLength(255),
-                        TextInput::make('client_phone')
-                            ->tel()
-                            ->required()
-                            ->maxLength(255),
+                            ->default('081122334455')
+                            ->dehydrated(),
                         TextInput::make('client_address')
-                            ->required()
-                            ->maxLength(255),
-                    ])->columns(3),
+                            ->readOnly()
+                            ->disabled()
+                            ->dehydrated()
+                            ->required(),
+                    ])->columns(2),
 
                 Section::make('Products')
                     ->description('Ordered products')
@@ -108,6 +131,8 @@ class OrderResource extends Resource
                                     ->numeric()
                                     ->prefix('IDR')
                                     ->readOnly()
+                                    ->disabled()
+                                    ->dehydrated()
                                     ->required(),
                             ])
                             ->columns(3)
@@ -132,6 +157,8 @@ class OrderResource extends Resource
                             ->prefix('IDR')
                             ->required()
                             ->numeric()
+                            ->disabled()
+                            ->dehydrated()
                             ->readOnly()
                             // This enables us to display the subtotal on the edit page load
                             ->afterStateHydrated(function (Get $get, Set $set) {
@@ -143,6 +170,38 @@ class OrderResource extends Resource
                     ->hiddenOn(['create', 'edit'])
                     ->schema([
                         Forms\Components\Toggle::make('delivered')
+                    ]),
+                Section::make('Canceled')
+                    ->description('The client had canceled and return his products')
+                    ->hiddenOn(['create', 'edit'])
+                    ->schema([
+                        Forms\Components\Toggle::make('canceled')
+                        // ->afterStateUpdated(function ($state, callable $set) {
+                        //     // Get the current order model
+                        //     $order = $set->getModel(); // This gets the current Order model
+            
+                        //     // Check if orderProducts is loaded, if not, load it
+                        //     if (!$order->relationLoaded('orderProducts')) {
+                        //         $order->load('orderProducts');
+                        //     }
+            
+                        //     // Iterate over the order products and update product quantities
+                        //     foreach ($order->orderProducts as $orderProduct) {
+                        //         $product = Product::find($orderProduct->product_id);
+            
+                        //         // If the state is true (canceled), increment the product quantity
+                        //         if ($state) {
+                        //             if ($product) {
+                        //                 $product->increment('quantity', $orderProduct->quantity);
+                        //             }
+                        //         } else {
+                        //             // If the state is false (uncanceled), decrement the product quantity
+                        //             if ($product) {
+                        //                 $product->decrement('quantity', $orderProduct->quantity);
+                        //             }
+                        //         }
+                        //     }
+                        // }),
                     ])
             ]);
     }
@@ -182,7 +241,10 @@ class OrderResource extends Resource
                     ->money('IDR')
                     ->summarize(Sum::make()),
                 ToggleColumn::make('delivered'),
+                ToggleColumn::make('canceled')
+                ->onColor('danger'),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 TrashedFilter::make(),
                 DateScopeFilter::make('created_at'),
@@ -190,7 +252,22 @@ class OrderResource extends Resource
             ->actions([
                 ViewAction::make(),
                 // EditAction::make(),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    // ->action(function ($record) {
+                    //     // First, loop through the related order products
+                    //     foreach ($record->orderProducts as $order) {
+                    //         // Find the related product
+                    //         $product = Product::find($order->product_id);
+                
+                    //         if ($product) {
+                    //             // Increment the quantity of the product
+                    //             $product->increment('quantity', $order->quantity);
+                    //         }
+                    //     }
+                
+                    //     // Now, delete the order record itself
+                    //     $record->delete();
+                    // }),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
@@ -293,5 +370,5 @@ class OrderResource extends Resource
         // $set('subtotal', number_format($subtotal, 2, '.', ''));
         $set('total', number_format($subtotal, 2, '.', ''));
         // $set('total', number_format($subtotal + ($subtotal * ($get('taxes') / 100)), 2, '.', ''));
-    }
+    }    
 }

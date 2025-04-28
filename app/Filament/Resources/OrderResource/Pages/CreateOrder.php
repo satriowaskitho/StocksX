@@ -52,13 +52,13 @@ class CreateOrder extends CreateRecord
             }
         }
 
-        foreach ($this->data['orderProducts'] as $order) {
-            $product = Product::find($order['product_id']);
+        // foreach ($this->data['orderProducts'] as $order) {
+        //     $product = Product::find($order['product_id']);
 
-            if ($product) {
-                $product->decrement('quantity', $order['quantity']);
-            }
-        }
+        //     if ($product) {
+        //         $product->decrement('quantity', $order['quantity']);
+        //     }
+        // }
     }
 
     protected function mutateFormDataBeforeCreate(array $data): array
@@ -70,6 +70,14 @@ class CreateOrder extends CreateRecord
 
     protected function afterCreate(): void
     {
+        foreach ($this->data['orderProducts'] as $order) {
+            $product = Product::find($order['product_id']);
+
+            if ($product) {
+                $product->decrement('quantity', $order['quantity']);
+            }
+        }
+
         $lowStockProducts = Product::where('quantity', '<=', 10)->get(['name', 'quantity']);
 
         if ($lowStockProducts->isNotEmpty()) {

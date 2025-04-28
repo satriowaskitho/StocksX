@@ -21,7 +21,13 @@ class Order extends Model
         'client_address',
         'total',
         'delivered',
+        'canceled',
     ];
+
+    // protected $attributes = [
+    //     'delivered' => true,
+    // ];
+  
 
     public function user(): BelongsTo
     {
