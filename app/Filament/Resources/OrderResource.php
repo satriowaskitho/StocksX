@@ -176,6 +176,7 @@ class OrderResource extends Resource
                     ->hiddenOn(['create', 'edit'])
                     ->schema([
                         Forms\Components\Toggle::make('canceled')
+                            ->onColor('danger'),
                     ])
             ]);
     }
