@@ -22,11 +22,11 @@ class DatabaseSeeder extends Seeder
 
         // Create product categories with real values
         $categories = [
-            ['title' => 'Electronics', 'slug' => 'electronics'],
-            ['title' => 'Furniture', 'slug' => 'furniture'],
-            ['title' => 'Clothing', 'slug' => 'clothing'],
-            ['title' => 'Books', 'slug' => 'books'],
-            ['title' => 'Toys', 'slug' => 'toys'],
+            ['title' => 'Perlengkapan Rumah Tangga', 'slug' => 'rt'],
+            ['title' => 'Peralatan Komputer', 'slug' => 'pc'],
+            ['title' => 'Alat Tulis Kantor', 'slug' => 'atk'],
+            ['title' => 'Perlengkapan Kesehatan', 'slug' => 'kesehatan'],
+            ['title' => 'Perlengkapan Cetak', 'slug' => 'cetak'],
         ];
         foreach ($categories as $category) {
             ProductCategory::create($category);
@@ -44,17 +44,17 @@ class DatabaseSeeder extends Seeder
 
         // Create products with real values
         $products = [
-            ['name' => 'Laptop', 'slug' => Str::slug("Laptop"), 'price' => 1000, 'quantity' => 50, 'product_categories_id' => 1, 'product_suppliers_id' => 1, 'image' => 'laptop.jpg'],
-            ['name' => 'Sofa', 'slug' => Str::slug("Sofa"), 'price' => 500, 'quantity' => 20, 'product_categories_id' => 2, 'product_suppliers_id' => 2, 'image' => 'sofa.jpg'],
-            ['name' => 'T-Shirt', 'slug' => Str::slug("T-Shirt"), 'price' => 20, 'quantity' => 100, 'product_categories_id' => 3, 'product_suppliers_id' => 3, 'image' => 'tshirt.jpg'],
-            ['name' => 'Novel', 'slug' => Str::slug("Novel"), 'price' => 15, 'quantity' => 40, 'product_categories_id' => 4, 'product_suppliers_id' => 1, 'image' => 'novel.jpg'],
-            ['name' => 'Action Figure', 'slug' => Str::slug("Action Figure"), 'price' => 25, 'quantity' => 30, 'product_categories_id' => 5, 'product_suppliers_id' => 2, 'image' => 'action_figure.jpg'],
+            ['name' => 'Tisu', 'slug' => Str::slug("Tisu"), 'price' => 2000, 'quantity' => 50, 'product_categories_id' => 1, 'product_suppliers_id' => 1, 'image' => 'tisu.jpg'],
+            ['name' => 'Mouse', 'slug' => Str::slug("Mouse"), 'price' => 50000, 'quantity' => 20, 'product_categories_id' => 2, 'product_suppliers_id' => 2, 'image' => 'mouse.jpg'],
+            ['name' => 'Kertas A4 1 Rim', 'slug' => Str::slug("Kertas A4 1 Rim"), 'price' => 80000, 'quantity' => 100, 'product_categories_id' => 3, 'product_suppliers_id' => 3, 'image' => 'kertas.jpg'],
+            ['name' => 'Masker', 'slug' => Str::slug("Masker"), 'price' => 2000, 'quantity' => 40, 'product_categories_id' => 4, 'product_suppliers_id' => 1, 'image' => 'masker.jpg'],
+            ['name' => 'Brosur', 'slug' => Str::slug("Brosur"), 'price' => 10000, 'quantity' => 150, 'product_categories_id' => 5, 'product_suppliers_id' => 2, 'image' => 'brosur.jpg'],
         ];
         foreach ($products as $product) {
             Product::create($product);
         }
 
         // Generate orders using factories
-        $orders = Order::factory(873)->create();
+        $orders = Order::factory(53)->create();
     }
 }

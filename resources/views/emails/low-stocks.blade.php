@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>StocksX Low Stocks Alert</title>
+    <title>Okmas Low Stocks Alert</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
@@ -98,7 +98,7 @@
         </header>
 
         <div style="text-align: center;">
-            <img src="{{ asset('images/logo.png') }}" alt="StocksX Logo" style="width: 100px; margin-bottom: 1rem;">
+            <img src="{{ asset('images/logo.png') }}" alt="Okmas Logo" style="width: 100px; margin-bottom: 1rem;">
         </div>
 
         <div class="email-body">
@@ -127,7 +127,7 @@
 
             <p class="email-footer">
                 Thanks, <br>
-                StocksX Support Team
+                Okmas Support Team
             </p>
         </div>
     </div>

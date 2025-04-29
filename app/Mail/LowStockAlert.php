@@ -35,7 +35,7 @@ class LowStockAlert extends Mailable
             to: (User::find(1))->email, // to send the email only to the super admin
             cc: [], // to send a copy to another email address (it will be visible to the recipient)
             bcc: [], // to send a copy to another email address (it will be hidden from the recipient)
-            replyTo: [new Address('no-reply@stocksx.com')], // to set the reply-to address (set it to null or 'no-reply' if you don't want to receive replies)
+            replyTo: [new Address('no-reply@gurind.am')], // to set the reply-to address (set it to null or 'no-reply' if you don't want to receive replies)
             subject: 'Low Stock Alert',
             tags: ['stocks', 'quantity', 'alert'],
         );

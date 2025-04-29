@@ -30,7 +30,10 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('stocks-manager')
-            ->login()
+            // ->login()
+            ->login(
+                \App\Filament\Resources\AuthResource\Pages\Auth\Login::class
+            )          
             ->profile()
             ->registration()
             ->emailVerification()
@@ -71,7 +74,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
             ->brandLogo(asset('images/logo.png'))
-            ->brandName('Stocks X')
+            ->brandName('Okmas')
             ->favicon(asset(asset('images/logo.png')))
             ->spa();
     }
