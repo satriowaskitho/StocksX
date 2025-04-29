@@ -176,32 +176,6 @@ class OrderResource extends Resource
                     ->hiddenOn(['create', 'edit'])
                     ->schema([
                         Forms\Components\Toggle::make('canceled')
-                        // ->afterStateUpdated(function ($state, callable $set) {
-                        //     // Get the current order model
-                        //     $order = $set->getModel(); // This gets the current Order model
-            
-                        //     // Check if orderProducts is loaded, if not, load it
-                        //     if (!$order->relationLoaded('orderProducts')) {
-                        //         $order->load('orderProducts');
-                        //     }
-            
-                        //     // Iterate over the order products and update product quantities
-                        //     foreach ($order->orderProducts as $orderProduct) {
-                        //         $product = Product::find($orderProduct->product_id);
-            
-                        //         // If the state is true (canceled), increment the product quantity
-                        //         if ($state) {
-                        //             if ($product) {
-                        //                 $product->increment('quantity', $orderProduct->quantity);
-                        //             }
-                        //         } else {
-                        //             // If the state is false (uncanceled), decrement the product quantity
-                        //             if ($product) {
-                        //                 $product->decrement('quantity', $orderProduct->quantity);
-                        //             }
-                        //         }
-                        //     }
-                        // }),
                     ])
             ]);
     }
@@ -242,6 +216,21 @@ class OrderResource extends Resource
                     ->summarize(Sum::make()),
                 ToggleColumn::make('delivered'),
                 ToggleColumn::make('canceled')
+                ->afterStateUpdated(function (bool $state, Order $record) {
+                    foreach ($record->orderProducts as $orderProduct) {
+                        $product = Product::find($orderProduct->product_id);
+            
+                        if ($product) {
+                            if ($state) {
+                                // Canceled: Add back quantity
+                                $product->increment('quantity', $orderProduct->quantity);
+                            } else {
+                                // Un-canceled: Decrease quantity again
+                                $product->decrement('quantity', $orderProduct->quantity);
+                            }
+                        }
+                    }
+                })
                 ->onColor('danger'),
             ])
             ->defaultSort('created_at', 'desc')

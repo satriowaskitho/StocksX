@@ -88,7 +88,8 @@ class EditOrder extends EditRecord
     }
 
     protected function afterSave(): void
-    {
+    {        
+
         $lowStockProducts = Product::where('quantity', '<=', 10)->get(['name', 'quantity']);
 
         if ($lowStockProducts->isNotEmpty()) {
