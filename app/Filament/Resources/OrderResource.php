@@ -202,8 +202,11 @@ class OrderResource extends Resource
                     ->limit(20)
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('total')
-                    ->money('IDR')
-                    ->sortable(),
+                    // ->money('IDR')
+                    ->sortable()
+                    ->formatStateUsing(function ($state) {
+                      return 'IDR ' . number_format($state, 2, ',', '.');
+                    }),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -218,7 +221,10 @@ class OrderResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('total')
                     ->money('IDR')
-                    ->summarize(Sum::make()),
+                    // ->summarize(Sum::make()),
+                    ->summarize(
+                      Sum::make()->formatStateUsing(fn($state) => 'IDR ' . number_format($state, 2, ',', '.'))
+                    ),
                 ToggleColumn::make('delivered'),
                 ToggleColumn::make('canceled')
                 ->afterStateUpdated(function (bool $state, Order $record) {

@@ -57,7 +57,7 @@ class ProductResource extends Resource
                             ->image()
                             ->columnSpanFull()
                             ->imageEditor()
-                            ->required()
+                            // ->required()
                             ->default(asset('images/default-product.png')),
                         TextInput::make('name')
                             ->required()
@@ -67,6 +67,9 @@ class ProductResource extends Resource
                         TextInput::make('slug')
                             ->required()
                             ->maxLength(255)
+                            ->readOnly()
+                            ->disabled()
+                            ->dehydrated()
                             ->unique('products', ignoreRecord: true),
                     ])
                     ->columns(2)
@@ -96,9 +99,11 @@ class ProductResource extends Resource
                     ->defaultImageUrl(asset('images/default-product.png')),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('price')
-                    ->money('IDR')
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('price')                    
+                    ->sortable()
+                    ->formatStateUsing(function ($state) {
+                      return 'IDR ' . number_format($state, 2, ',', '.');
+                    }),
                 Tables\Columns\TextColumn::make('quantity')
                     ->numeric()
                     ->sortable()
