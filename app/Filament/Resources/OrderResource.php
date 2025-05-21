@@ -190,6 +190,10 @@ class OrderResource extends Resource
                     ->hidden(!auth()->user()->hasRole('super_admin')),
                 TextColumn::make('client_name')
                     ->searchable(),
+                TextColumn::make('quantity')
+                    ->getStateUsing(function ($record) {
+                        return $record->orderProducts->sum('quantity');
+                    }),
                 TextColumn::make('client_phone')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
