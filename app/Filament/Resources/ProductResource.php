@@ -57,7 +57,8 @@ class ProductResource extends Resource
                             ->image()
                             ->columnSpanFull()
                             ->imageEditor()
-                            ->required(),
+                            ->required()
+                            ->default(asset('images/default-product.png')),
                         TextInput::make('name')
                             ->required()
                             ->maxLength(255)
@@ -91,7 +92,8 @@ class ProductResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\ImageColumn::make('image')
-                    ->square(),
+                    ->square()
+                    ->defaultImageUrl(asset('images/default-product.png')),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('price')
