@@ -19,7 +19,10 @@ RUN apt-get update \
         libfreetype6-dev \
         libmcrypt-dev \
         libssl-dev \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
+        libicu-dev \
+        g++ \
+    && docker-php-ext-configure intl \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip intl
 
 # Install Composer
 COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
