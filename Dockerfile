@@ -21,8 +21,9 @@ RUN apt-get update \
         libssl-dev \
         libicu-dev \
         g++ \
+    && docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \
     && docker-php-ext-configure intl \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip intl
+    && docker-php-ext-install pdo_pgsql pgsql mbstring exif pcntl bcmath gd zip intl
 
 # Install Composer
 COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
@@ -32,6 +33,13 @@ WORKDIR /var/www
 
 # Copy existing application
 COPY . /var/www
+
+# Create required Laravel cache directories
+RUN mkdir -p storage/framework/cache/data \
+    && mkdir -p storage/framework/sessions \
+    && mkdir -p storage/framework/views \
+    && mkdir -p storage/logs \
+    && mkdir -p bootstrap/cache
 
 # Install PHP dependencies
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
