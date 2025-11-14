@@ -47,4 +47,18 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        // return true; // Allow all authenticated users
+        
+        // Or use Shield's logic:
+        // return $this->hasRole('super_admin');
+        
+        // Or check panel-specific access:
+        if ($panel->getId() === 'stocks-manager') {
+            return $this->hasRole(['super_admin', 'panel_user']);
+        }
+        return false;
+    }
 }
