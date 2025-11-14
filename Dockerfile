@@ -1,55 +1,65 @@
-# Dockerfile for Laravel (PHP 8.2, Composer, Node for asset build)
-FROM php:8.2-fpm
+# Stage 1: Node.js build for frontend assets
+FROM node:20-alpine AS node-builder
 
-# Install system dependencies
-RUN apt-get update \
-    && apt-get install -y \
-        git \
-        curl \
-        libpng-dev \
-        libonig-dev \
-        libxml2-dev \
-        zip \
-        unzip \
-        npm \
-        nodejs \
-        libzip-dev \
-        libpq-dev \
-        libjpeg-dev \
-        libfreetype6-dev \
-        libmcrypt-dev \
-        libssl-dev \
-        libicu-dev \
-        g++ \
-    && docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \
-    && docker-php-ext-configure intl \
-    && docker-php-ext-install pdo_pgsql pgsql mbstring exif pcntl bcmath gd zip intl
+WORKDIR /app
 
-# Install Composer
-COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
+# Copy package files
+COPY package*.json ./
+
+# Install Node dependencies
+RUN npm install
+
+# Copy source files needed for Vite build
+COPY . .
+
+# Build Vite assets (this compiles Tailwind CSS)
+RUN npm run build
+
+# Stage 2: Composer dependencies
+FROM serversideup/php:8.3-cli AS composer-builder
+
+USER root
+
+WORKDIR /app
+
+# Copy composer files
+COPY composer.json composer.lock ./
+
+# Install Composer dependencies
+RUN composer install --no-interaction --optimize-autoloader --no-dev --prefer-dist
+
+# Copy application files
+COPY . .
+
+# Generate optimized autoloader
+RUN composer dump-autoload --optimize --no-dev
+
+# Stage 3: Production image
+FROM serversideup/php:8.3-fpm-nginx
+
+ENV PHP_OPCACHE_ENABLE=1
+
+USER root
+
+# Install intl extension (required for Filament)
+RUN install-php-extensions intl
 
 # Set working directory
-WORKDIR /var/www
+WORKDIR /var/www/html
 
-# Copy existing application
-COPY . /var/www
+# Copy application files from composer-builder stage
+COPY --chown=www-data:www-data --from=composer-builder /app /var/www/html
 
-# Create required Laravel cache directories
-RUN mkdir -p storage/framework/cache/data \
-    && mkdir -p storage/framework/sessions \
-    && mkdir -p storage/framework/views \
-    && mkdir -p storage/logs \
-    && mkdir -p bootstrap/cache
+# Copy built Vite assets from node-builder stage
+COPY --chown=www-data:www-data --from=node-builder /app/public/build /var/www/html/public/build
 
-# Install PHP dependencies
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+# Set permissions for Laravel
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html/storage \
+    && chmod -R 755 /var/www/html/bootstrap/cache
 
-# Install Node dependencies and build assets
-RUN npm install && npm run build
+# Switch to www-data user
+USER www-data
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
-
-# Expose port 9000 and start php-fpm server
-EXPOSE 9000
-CMD ["php-fpm"]
+# Expose port (serversideup/php:8.3-fpm-nginx uses 8080 by default)
+EXPOSE 8080
