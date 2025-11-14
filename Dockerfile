@@ -63,10 +63,12 @@ COPY --chown=www-data:www-data --from=composer-builder /app /var/www/html
 # Copy built Vite assets from node-builder stage
 COPY --chown=www-data:www-data --from=node-builder /app/public/build /var/www/html/public/build
 
-# Set permissions for Laravel
+# Set comprehensive permissions for Laravel
 RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage \
-    && chmod -R 755 /var/www/html/bootstrap/cache
+    && chmod -R 775 /var/www/html/storage \
+    && chmod -R 775 /var/www/html/bootstrap/cache \
+    && find /var/www/html -type f -exec chmod 644 {} \; \
+    && find /var/www/html -type d -exec chmod 755 {} \;
 
 # Switch to www-data user
 USER www-data
