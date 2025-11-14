@@ -22,14 +22,16 @@ USER root
 
 WORKDIR /app
 
-# Copy composer files
-COPY composer.json composer.lock ./
+# Copy application files FIRST
+COPY . .
+
+# Create Laravel storage directories before composer install
+RUN mkdir -p storage/framework/{cache/data,sessions,views} \
+    && mkdir -p storage/logs \
+    && mkdir -p bootstrap/cache
 
 # Install Composer dependencies
 RUN composer install --no-interaction --optimize-autoloader --no-dev --prefer-dist
-
-# Copy application files
-COPY . .
 
 # Generate optimized autoloader
 RUN composer dump-autoload --optimize --no-dev
