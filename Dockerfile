@@ -20,6 +20,9 @@ FROM serversideup/php:8.3-cli AS composer-builder
 
 USER root
 
+# Install intl extension (required for Filament during composer install)
+RUN install-php-extensions intl
+
 WORKDIR /app
 
 # Copy application files FIRST
@@ -43,7 +46,7 @@ ENV PHP_OPCACHE_ENABLE=1
 
 USER root
 
-# Install intl extension (required for Filament)
+# Install intl extension (required for Filament at runtime)
 RUN install-php-extensions intl
 
 # Set working directory
