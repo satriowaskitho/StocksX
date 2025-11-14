@@ -28,13 +28,18 @@ WORKDIR /app
 # Copy application files FIRST
 COPY . .
 
-# Create Laravel storage directories before composer install
-RUN mkdir -p storage/framework/{cache/data,sessions,views} \
+# Create Laravel storage directories with correct structure
+RUN mkdir -p storage/framework/cache/data \
+    && mkdir -p storage/framework/sessions \
+    && mkdir -p storage/framework/views \
     && mkdir -p storage/logs \
     && mkdir -p bootstrap/cache
 
-# Install Composer dependencies
-RUN composer install --no-interaction --optimize-autoloader --no-dev --prefer-dist
+# Install Composer dependencies without running scripts first
+RUN composer install --no-interaction --optimize-autoloader --no-dev --prefer-dist --no-scripts
+
+# Now run package discovery manually (after directories exist)
+RUN php artisan package:discover --ansi || true
 
 # Generate optimized autoloader
 RUN composer dump-autoload --optimize --no-dev
